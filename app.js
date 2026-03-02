@@ -67,7 +67,7 @@ function calculate() {
   els.mgRange.textContent = `${roundTo(mgMin, 2)} to ${roundTo(mgMax, 2)} mg`;
   els.mlRange.textContent = `${roundTo(mlMin, 2)} to ${roundTo(mlMax, 2)} mL`;
   els.roundedDose.textContent = String(roundedDose);
-  els.sig.textContent = `Give ${roundedDose} mL(s) orally every ${cfg.minHour}-${cfg.maxHour} hours as needed. Do not exceed ${cfg.maxDosesPerDay} doses.`;
+  els.sig.textContent = `Give ${roundedDose} mL(s) orally every ${cfg.minHour}-${cfg.maxHour} hours as needed. Do not exceed ${cfg.maxDosesPerDay} doses per day.`;
 }
 
 for (const input of [els.brand, els.product, els.weightKg, els.weightLbs]) {
