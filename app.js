@@ -13,7 +13,7 @@ const DOSING = {
   Advil: {
     minMgPerKg: 5,
     maxMgPerKg: 10,
-    maxDosesPerDay: 4,
+    maxDosesPerDay: 3,
     minHour: 6,
     maxHour: 8,
     strengths: {
@@ -26,33 +26,66 @@ const DOSING = {
 const els = {
   brand: document.getElementById('brand'),
   product: document.getElementById('product'),
-  weightKg: document.getElementById('weightKg'),
-  weightLbs: document.getElementById('weightLbs'),
+  weightInput: document.getElementById('weightInput'),
+  weightLabel: document.getElementById('weightLabel'),
+  weightUnitToggle: document.getElementById('weightUnitToggle'),
   calcKg: document.getElementById('calcKg'),
   mgRange: document.getElementById('mgRange'),
   mlRange: document.getElementById('mlRange'),
   roundedDose: document.getElementById('roundedDose'),
   sig: document.getElementById('sig'),
+  productWarning: document.getElementById('productWarning'),
 };
 
-function toNumber(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
+const LBS_PER_KG = 2.2;
 
 function roundTo(value, decimals = 2) {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
 }
 
+function getSelectedWeightUnit() {
+  return els.weightUnitToggle.checked ? 'lbs' : 'kg';
+}
+
+function updateWeightLabel() {
+  const unit = getSelectedWeightUnit();
+  els.weightLabel.textContent = `Weight (${unit})`;
+}
+
+function parseWeightInput(rawValue) {
+  const trimmed = rawValue.trim();
+  if (trimmed === '') return null;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
+function getWeightKg() {
+  const weightValue = parseWeightInput(els.weightInput.value);
+  if (weightValue === null) return 0;
+  return getSelectedWeightUnit() === 'lbs' ? weightValue / LBS_PER_KG : weightValue;
+}
+
+function handleUnitToggle() {
+  const numericWeight = parseWeightInput(els.weightInput.value);
+  if (numericWeight !== null) {
+    const converted =
+      getSelectedWeightUnit() === 'lbs'
+        ? numericWeight * LBS_PER_KG
+        : numericWeight / LBS_PER_KG;
+    els.weightInput.value = String(roundTo(converted, 2));
+  } else {
+    els.weightInput.value = '';
+  }
+  updateWeightLabel();
+  calculate();
+}
+
 function calculate() {
   const brand = els.brand.value;
   const product = els.product.value;
-  const kgInput = toNumber(els.weightKg.value);
-  const lbsInput = toNumber(els.weightLbs.value);
-
-  const calcKg = kgInput > 0 ? kgInput : lbsInput / 2.2;
-  const safeKg = Math.max(calcKg, 0);
+  const safeKg = Math.max(getWeightKg(), 0);
 
   const cfg = DOSING[brand];
   const mgMin = cfg.minMgPerKg * safeKg;
@@ -68,11 +101,27 @@ function calculate() {
   els.mlRange.textContent = `${roundTo(mlMin, 2)} to ${roundTo(mlMax, 2)} mL`;
   els.roundedDose.textContent = String(roundedDose);
   els.sig.textContent = `Give ${roundedDose} mL(s) orally every ${cfg.minHour}-${cfg.maxHour} hours as needed. Do not exceed ${cfg.maxDosesPerDay} doses per day.`;
+
+  let warningMessage = '';
+  if (safeKg > 0 && safeKg < 5.5){
+    warningMessage = 'For infants under 5.5kg (12.1 lbs), it is recommended to speak to a physician prior to administration.'
+  } else if (safeKg > 0 && safeKg <= 11 && product === "Children's Liquid") {
+    warningMessage = 'For weights of 11 kg (24.2 lbs) and under, select Infant Drops instead of Children\'s Liquid.';
+  } else if (safeKg > 11 && product === 'Infant Drops') {
+    warningMessage = 'For weights over 11 kg (24.2 lbs), select Children\'s Liquid instead of Infant Drops.';
+  }
+  
+
+  els.productWarning.textContent = warningMessage;
+  els.productWarning.classList.toggle('hidden', warningMessage === '');
 }
 
-for (const input of [els.brand, els.product, els.weightKg, els.weightLbs]) {
+for (const input of [els.brand, els.product, els.weightInput]) {
   input.addEventListener('input', calculate);
   input.addEventListener('change', calculate);
 }
 
+els.weightUnitToggle.addEventListener('change', handleUnitToggle);
+
+updateWeightLabel();
 calculate();

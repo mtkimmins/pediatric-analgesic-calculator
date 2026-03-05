@@ -19,7 +19,7 @@
     <main class="app">
       <header>
         <h1>Pediatric Oral Analgesic Calculator</h1>
-        <p>Educational tool based on the provided spreadsheet logic.</p>
+        <p>Parent-friendly weight-based dosing instructions for Canadian children's pain medications</p>
       </header>
 
       <section class="card">
@@ -42,16 +42,25 @@
           </label>
 
           <label>
-            Weight (kg)
-            <input id="weightKg" type="number" min="0" step="0.1" value="" />
+            <span id="weightLabel">Weight (kg)</span>
+            <input id="weightInput" type="text" inputmode="decimal" value="" />
           </label>
 
-          <label>
-            Weight (lbs)
-            <input id="weightLbs" type="number" min="0" step="0.1" value="" />
-          </label>
+          <div class="unit-toggle-row">
+            <span class="unit-pill">kg</span>
+            <label class="switch">
+              <input
+                id="weightUnitToggle"
+                type="checkbox"
+                aria-label="Toggle weight units between kilograms and pounds"
+              />
+              <span class="slider"></span>
+            </label>
+            <span class="unit-pill">lbs</span>
+          </div>
         </div>
-        <p class="hint">If kg is greater than 0, kg is used. Otherwise lbs / 2.2 is used.</p>
+        <p class="hint">Enter weight in the selected unit. Switching units converts valid numeric input automatically.</p>
+        <p id="productWarning" class="product-warning hidden" aria-live="polite"></p>
       </section>
 
       <section class="card">
@@ -70,12 +79,13 @@
         <p>Healthcare professionals should conduct due diligence to verify the calculations provided prior to counselling patients.</p>
       </section>
     </main>
-    <footer>
+    <footer class="card">
       <p>Calculations based on clinical weight-based dosing.</p>
-      <p>UI/UX layout and design developed with OpenAI's Codex -- February 2026.</p>
+      <p>UI/UX layout and design developed with OpenAI's Codex</p>
       <p>By use of this tool the user accepts liability for all subsequent outcomes. A healthcare professional must verify these values before drug administration. Professionals should use their own critical judgement and seek appropriate tools.</p>
       <a href="https://forms.gle/ZmJ32H9hhAAH6zD29">Share Feedback</a>
-      <p>Last Updated: March 2026     Version: 1.0</p>
+      <p>Last Updated: March 2026</p>
+      <p>Version: 1.0</p>
     </footer>
     <script src="app.js"></script>
   </body>
