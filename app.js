@@ -116,6 +116,8 @@ function calculate() {
   }
   const lowestDailyLimitDoses = floorDoses;
 
+
+
   els.calcKg.textContent = roundTo(safeKg, 2).toFixed(2);
   els.mgRange.textContent = `${roundTo(mgMin, 2)} to ${roundTo(mgMax, 2)} mg`;
   els.mlRange.textContent = `${roundTo(mlMin, 2)} to ${roundTo(mlMax, 2)} mL`;
@@ -132,6 +134,12 @@ function calculate() {
     warningMessage = 'For weights of 11 kg (24.2 lbs) and under, select Infant Drops instead of Children\'s Liquid.';
   } else if (safeKg > 11 && product === 'Infant Drops') {
     warningMessage = 'For weights over 11 kg (24.2 lbs), select Children\'s Liquid instead of Infant Drops.';
+  }
+
+    //cap adult dosing
+  if (roundedDose * strength > lowestDailyLimitMg){
+    warningMessage = 'Dose required higher than daily maximum recommended.';
+    els.sig.textContent = `Consult a healthcare professional`;
   }
   
 
