@@ -11,6 +11,7 @@ This repository contains a browser-based calculator converted from a spreadsheet
   - Unrounded mg range
   - Unrounded mL dosing range
   - Rounded mL dose (nearest whole mL)
+  - Daily maximum mg and mL
   - SIG text
 
 ## Medical disclaimer

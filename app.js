@@ -3,6 +3,8 @@ const DOSING = {
     minMgPerKg: 10,
     maxMgPerKg: 15,
     maxDosesPerDay: 5,
+    maxMgPerDay: 4000,
+    maxMgPerKgPerDay: 75,
     minHour: 4,
     maxHour: 6,
     strengths: {
@@ -13,7 +15,9 @@ const DOSING = {
   Advil: {
     minMgPerKg: 5,
     maxMgPerKg: 10,
-    maxDosesPerDay: 3,
+    maxDosesPerDay: 4,
+    maxMgPerDay: 1200,
+    maxMgPerKgPerDay: 40,
     minHour: 6,
     maxHour: 8,
     strengths: {
@@ -33,6 +37,8 @@ const els = {
   mgRange: document.getElementById('mgRange'),
   mlRange: document.getElementById('mlRange'),
   roundedDose: document.getElementById('roundedDose'),
+  mgDailyMax: document.getElementById('mgDailyMax'),
+  wtBasedDailyMax: document.getElementById('wtBasedDailyMax'),
   sig: document.getElementById('sig'),
   productWarning: document.getElementById('productWarning'),
 };
@@ -96,15 +102,32 @@ function calculate() {
   const mlMax = strength > 0 ? mgMax / strength : 0;
   const roundedDose = Math.round((mlMin + mlMax) / 2);
 
+  //Maximum Daily Dosing Calculations
+  //Translate all limits to mg/day
+  const wtBasedDailyMax = safeKg * cfg.maxMgPerKgPerDay;
+  const nDosesToMg = (cfg.maxDosesPerDay * roundedDose)*strength;
+  //+the hard-coded limit mg cap
+
+  const lowestDailyLimitMg = Math.min(wtBasedDailyMax, nDosesToMg, cfg.maxMgPerDay);
+  const lowestDailyLimitMl = Math.max((lowestDailyLimitMg / strength),0);
+  let floorDoses = Math.floor(lowestDailyLimitMl / roundedDose);
+  if (Number.isNaN(floorDoses)){
+    floorDoses = 0;
+  }
+  const lowestDailyLimitDoses = floorDoses;
+
   els.calcKg.textContent = roundTo(safeKg, 2).toFixed(2);
   els.mgRange.textContent = `${roundTo(mgMin, 2)} to ${roundTo(mgMax, 2)} mg`;
   els.mlRange.textContent = `${roundTo(mlMin, 2)} to ${roundTo(mlMax, 2)} mL`;
-  els.roundedDose.textContent = String(roundedDose);
-  els.sig.textContent = `Give ${roundedDose} mL(s) orally every ${cfg.minHour}-${cfg.maxHour} hours as needed. Do not exceed ${cfg.maxDosesPerDay} doses per day.`;
+  els.roundedDose.textContent = `${String(roundedDose)} mL (${roundedDose * strength} mg)`;
+  els.mgDailyMax.textContent = `${lowestDailyLimitMg} mg (${lowestDailyLimitMl} mL)`;
+  els.sig.textContent = `Give ${roundedDose} mL(s) orally every ${cfg.minHour}-${cfg.maxHour} hours as needed. Do not exceed ${lowestDailyLimitDoses} doses per day.`;
 
   let warningMessage = '';
   if (safeKg > 0 && safeKg < 5.5){
-    warningMessage = 'For infants under 5.5kg (12.1 lbs), it is recommended to speak to a physician prior to administration.'
+    warningMessage = 'For infants under 5.5 kg (12.1 lbs), it is recommended to speak to a physician prior to administration.'
+  } else if (safeKg > 43.2){
+    warningMessage = 'For children over 43.2 kg, consider using adult dosing with help from a healthcare professional.'
   } else if (safeKg > 0 && safeKg <= 11 && product === "Children's Liquid") {
     warningMessage = 'For weights of 11 kg (24.2 lbs) and under, select Infant Drops instead of Children\'s Liquid.';
   } else if (safeKg > 11 && product === 'Infant Drops') {

@@ -156,8 +156,13 @@ strong {
   color: var(--accent);
 }
 
-.footer {
+footer {
   text-align: center;
+}
+
+footer p {
+  font-size: 0.8em;
+  color: var(--muted);
 }
 
 .hidden {
