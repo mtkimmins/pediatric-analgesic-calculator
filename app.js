@@ -129,7 +129,7 @@ function calculate() {
   if (safeKg > 0 && safeKg < 5.5){
     warningMessage = 'For infants under 5.5 kg (12.1 lbs), it is recommended to speak to a physician prior to administration.'
   } else if (safeKg > 43.2){
-    warningMessage = 'For children over 43.2 kg, consider using adult dosing with help from a healthcare professional.'
+    warningMessage = 'For children over 43.2 kg (95 lbs), consider using adult dosing with help from a healthcare professional.'
   } else if (safeKg > 0 && safeKg <= 11 && product === "Children's Liquid") {
     warningMessage = 'For weights of 11 kg (24.2 lbs) and under, select Infant Drops instead of Children\'s Liquid.';
   } else if (safeKg > 11 && product === 'Infant Drops') {
